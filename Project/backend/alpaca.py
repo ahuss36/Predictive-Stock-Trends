@@ -94,11 +94,3 @@ class session:
         df["status"] = [order.status for order in order]
 
         return df
-
-e = session()
-
-# data = e.get_history("AAPL", "1D", "2023-01-01", filter="open")
-
-# data = e.get_positions()
-
-e.sell("GOOGL", 100)
