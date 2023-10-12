@@ -25,7 +25,7 @@ stock_data.head() #When printed, can be used to quickly check first 5 rows of da
 
 #Preprocessing the Data prior to Training
 target_y = stock_data['close']
-X_feat = stock_data.iloc[:,0:3]
+X_feat = stock_data.iloc[:, 0:3]
 
 #Feature Scaling, using StandardScaler to rescale our values between -1 and 1
 sc = StandardScaler()
