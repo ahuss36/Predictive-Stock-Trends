@@ -5,6 +5,7 @@ from datetime import datetime
 import time
 import pandas as pd
 import random
+from config import database as config
 
 class session:
     def __init__(self, path):
@@ -24,20 +25,20 @@ class session:
             time_obj = pd.to_datetime(row["time"], unit="s")
             unix_time = time_obj.timestamp()
 
-            self.cursor.execute("INSERT INTO databaseapp_stock VALUES (?, ?, ?, ?, ?)", (random.randint(0, 9223372036854775808), ticker, row["close"], unix_time, "0"))
+            self.cursor.execute(f"INSERT INTO {config.table_name} VALUES (?, ?, ?, ?, ?)", (random.randint(0, 9223372036854775808), ticker, row["close"], unix_time, "0"))
         
         self.conn.commit()
 
     def __clear_data(self, ticker):
-        self.cursor.execute(f"DELETE FROM databaseapp_stock WHERE stock_ticker = '{ticker}'")
+        self.cursor.execute(f"DELETE FROM {config.table_name} WHERE {config.ticker_column_name} = '{ticker}'")
         self.conn.commit()
 
     def clear_prediction(self, ticker=None): # UNTESTED
 
         if ticker is None:
-            self.cursor.execute("DELETE FROM databaseapp_stock WHERE stock_prediction = 'true'")
+            self.cursor.execute(f"DELETE FROM {config.table_name} WHERE {config.prediction_column_name} = 'true'")
         else:
-            self.cursor.execute(f"DELETE FROM databaseapp_stock WHERE stock_ticker = '{ticker}' AND stock_prediction = '1'")
+            self.cursor.execute(f"DELETE FROM {config.table_name} WHERE {config.ticker_column_name} = '{ticker}' AND {config.prediction_column_name} = '1'")
 
     def update(self, ticker, start, end=None):
         if end is None:
