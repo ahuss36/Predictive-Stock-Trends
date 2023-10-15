@@ -25,11 +25,12 @@ class session:
             time_obj = pd.to_datetime(row["time"], unit="s")
             unix_time = time_obj.timestamp()
 
-            self.cursor.execute(f"INSERT INTO {config.table_name} VALUES (?, ?, ?, ?, ?)", (random.randint(0, 9223372036854775808), ticker, row["close"], unix_time, "0"))
+            # This is awful and painful but I have no better solution so it will persist until soom*tm*
+            self.cursor.execute(f"INSERT INTO {config.table_name} ({config.id_column_name}, {config.ticker_column_name}, {config.price_column_name}, {config.date_column_name}, {config.prediction_column_name}) VALUES (?, ?, ?, ?, ?)", (random.randint(0, 9223372036854775808), ticker, row["close"], unix_time, "0"))
         
         self.conn.commit()
 
-    def __clear_data(self, ticker):
+    def clear_data(self, ticker):
         self.cursor.execute(f"DELETE FROM {config.table_name} WHERE {config.ticker_column_name} = '{ticker}'")
         self.conn.commit()
 
@@ -44,17 +45,5 @@ class session:
         if end is None:
             end = datetime.now().date() - timedelta(days = 1)
 
-        self.__clear_data(ticker)
+        self.clear_data(ticker)
         self.__add_data(ticker, start, end)
-
-    def test(self):
-        # self.__clear_data("AAPL")
-        self.__add_data("GOOGL", "2023-01-01")
-        
-
-
-ses = session("storage.db")
-
-# ses.update("AAPL", "2022-01-01")
-
-ses.test()
