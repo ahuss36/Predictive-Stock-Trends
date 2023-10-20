@@ -42,14 +42,14 @@ class session:
 
         df = pd.DataFrame()
 
-        df["time"] = [bar.t for bar in data]
+        df["time"] = [bar.t for bar in data] # only take required elements from the dataframe
         df["open"] = [bar.o for bar in data]
         df["high"] = [bar.h for bar in data]
         df["low"] = [bar.l for bar in data]
         df["close"] = [bar.c for bar in data]
         df["volume"] = [bar.v for bar in data]
 
-        if (filter != None):
+        if (filter != None): # if a filter is specified, filter the new dataframe
             newFilter = ["time", filter]
             df = df.filter(newFilter)
 
@@ -57,9 +57,9 @@ class session:
     
     def buy(self, symbol, qty, returnErrors = False):
         try:
-            order = self.api.submit_order(symbol, qty, "buy", "market", "day")
+            order = self.api.submit_order(symbol, qty, "buy", "market", "day") # submit the order
         except tradeapi.rest.APIError as e:
-            if (returnErrors):
+            if (returnErrors): # if the user wants to see the error, return it
                 return e
             else:
                 return []
@@ -94,11 +94,3 @@ class session:
         df["status"] = [order.status for order in order]
 
         return df
-
-e = session()
-
-# data = e.get_history("AAPL", "1D", "2023-01-01", filter="open")
-
-# data = e.get_positions()
-
-e.sell("GOOGL", 100)
