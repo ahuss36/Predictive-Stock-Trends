@@ -23,10 +23,10 @@ class session:
         for index, row in data.iterrows(): # iterate through the data and add it to the database
 
             time_obj = pd.to_datetime(row["time"], unit="s")
-            unix_time = time_obj.timestamp()
+            timestamp = time_obj.to_pydatetime().date()
 
             # This is awful and painful but I have no better solution so it will persist until soom*tm*
-            self.cursor.execute(f"INSERT INTO {config.table_name} ({config.id_column_name}, {config.ticker_column_name}, {config.price_column_name}, {config.date_column_name}, {config.prediction_column_name}) VALUES (?, ?, ?, ?, ?)", (random.randint(0, 9223372036854775808), ticker, row["close"], unix_time, "0"))
+            self.cursor.execute(f"INSERT INTO {config.table_name} ({config.id_column_name}, {config.ticker_column_name}, {config.price_column_name}, {config.date_column_name}, {config.prediction_column_name}) VALUES (?, ?, ?, ?, ?)", (random.randint(0, 9223372036854775808), ticker, row["close"], timestamp, "0"))
         
         self.conn.commit()
 
@@ -42,8 +42,36 @@ class session:
             self.cursor.execute(f"DELETE FROM {config.table_name} WHERE {config.ticker_column_name} = '{ticker}' AND {config.prediction_column_name} = '1'")
 
     def update(self, ticker, start, end=None):
-        if end is None:
-            end = datetime.now().date() - timedelta(days = 1)
 
-        self.clear_data(ticker)
-        self.__add_data(ticker, start, end)
+        if end is None: # if no end date is specified, use yesterday
+            end = datetime.now().date() - timedelta(days = 1)
+        else: # otherwise, convert the end date to a datetime object
+            end = datetime.strptime(end, "%Y-%m-%d").date()
+
+        start = datetime.strptime(start, "%Y-%m-%d").date()
+
+        datesTuple = self.cursor.execute(f"SELECT {config.date_column_name} FROM {config.table_name} WHERE {config.ticker_column_name} = '{ticker}'").fetchall()
+        datesArray = []
+
+        for i in datesTuple:
+            datesArray.append(i[0])
+
+        newestStr = max(datesArray, default=None)
+        oldestStr = min(datesArray, default=None)
+
+        if newestStr is None:
+            self.__add_data(ticker, start, end)
+            return
+        
+        newest = datetime.strptime(newestStr, "%Y-%m-%d").date()
+        oldest = datetime.strptime(oldestStr, "%Y-%m-%d").date()
+
+        if (newest < end):
+            # print(f"Adding data to end from {newest} to {end}")
+            self.__add_data(ticker, newest, end)
+        elif (start < oldest):
+            # print(f"Adding data to beginning from {start} to {oldest}")
+            self.__add_data(ticker, start, oldest)
+
+        # self.clear_data(ticker)
+        # self.__add_data(ticker, realDate, end)
