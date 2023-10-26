@@ -25,20 +25,23 @@ class session:
             time_obj = pd.to_datetime(row["time"], unit="s")
             unix_time = time_obj.timestamp()
 
-            self.cursor.execute(f"INSERT INTO {config.table_name} VALUES (?, ?, ?, ?, ?)", (random.randint(0, 9223372036854775808), ticker, row["close"], unix_time, "0"))
+            # This is awful and painful but I have no better solution so it will persist until soom*tm*
+            self._run_query(f"INSERT INTO {config.table_name} ({config.id_column_name}, {config.ticker_column_name}, {config.price_column_name}, {config.date_column_name}, {config.prediction_column_name}) VALUES (?, ?, ?, ?, ?)", (random.randint(0, 9223372036854775808), ticker, row["close"], timestamp, "0"))
         
         self.conn.commit()
 
-    def __clear_data(self, ticker):
-        self.cursor.execute(f"DELETE FROM {config.table_name} WHERE {config.ticker_column_name} = '{ticker}'")
+    def clear_data(self, ticker):
+        self._run_query(f"DELETE FROM {config.table_name} WHERE {config.ticker_column_name} = '{ticker}'")
         self.conn.commit()
 
     def clear_prediction(self, ticker=None): # UNTESTED
 
         if ticker is None:
-            self.cursor.execute(f"DELETE FROM {config.table_name} WHERE {config.prediction_column_name} = 'true'")
+            self._run_query(f"DELETE FROM {config.table_name} WHERE {config.prediction_column_name} = 'true'")
         else:
-            self.cursor.execute(f"DELETE FROM {config.table_name} WHERE {config.ticker_column_name} = '{ticker}' AND {config.prediction_column_name} = '1'")
+            self._run_query(f"DELETE FROM {config.table_name} WHERE {config.ticker_column_name} = '{ticker}' AND {config.prediction_column_name} = '1'")
+
+        self.conn.commit()
 
     def update(self, ticker, start, end=None):
         if end is None:
@@ -47,14 +50,29 @@ class session:
         self.__clear_data(ticker)
         self.__add_data(ticker, start, end)
 
-    def test(self):
-        # self.__clear_data("AAPL")
-        self.__add_data("GOOGL", "2023-01-01")
+        datesTuple = self._run_query(f"SELECT {config.date_column_name} FROM {config.table_name} WHERE {config.ticker_column_name} = '{ticker}'").fetchall()
+        datesArray = []
+
+        for i in datesTuple:
+            datesArray.append(i[0])
+
+        newestStr = max(datesArray, default=None)
+        oldestStr = min(datesArray, default=None)
+
+        if newestStr is None:
+            self.__add_data(ticker, start, end)
+            return
         
 
 
-ses = session("storage.db")
+        # self.clear_data(ticker)
+        # self.__add_data(ticker, realDate, end)
 
-# ses.update("AAPL", "2022-01-01")
-
-ses.test()
+    def _run_query(self, query):
+        for i in range(0, 5):
+            try:
+                return self.cursor.execute(query)
+            except Exception as e:
+                if e is sqlite3.OperationalError:
+                    time.sleep(1)
+                    continue
