@@ -26,20 +26,24 @@ class session:
             timestamp = time_obj.to_pydatetime().date()
 
             # This is awful and painful but I have no better solution so it will persist until soom*tm*
-            self.cursor.execute(f"INSERT INTO {config.table_name} ({config.id_column_name}, {config.ticker_column_name}, {config.price_column_name}, {config.date_column_name}, {config.prediction_column_name}) VALUES (?, ?, ?, ?, ?)", (random.randint(0, 9223372036854775808), ticker, row["close"], timestamp, "0"))
+            self._run_query(f"INSERT INTO {config.table_name} ({config.id_column_name}, {config.ticker_column_name}, {config.price_column_name}, {config.date_column_name}, {config.prediction_column_name}) VALUES (?, ?, ?, ?, ?)", (random.randint(0, 9223372036854775808), ticker, row["close"], timestamp, "0"))
+
         
         self.conn.commit()
 
     def clear_data(self, ticker):
-        self.cursor.execute(f"DELETE FROM {config.table_name} WHERE {config.ticker_column_name} = '{ticker}'")
+        self._run_query(f"DELETE FROM {config.table_name} WHERE {config.ticker_column_name} = '{ticker}'")
+
         self.conn.commit()
 
     def clear_prediction(self, ticker=None): # UNTESTED
 
         if ticker is None:
-            self.cursor.execute(f"DELETE FROM {config.table_name} WHERE {config.prediction_column_name} = 'true'")
+            self._run_query(f"DELETE FROM {config.table_name} WHERE {config.prediction_column_name} = 'true'")
         else:
-            self.cursor.execute(f"DELETE FROM {config.table_name} WHERE {config.ticker_column_name} = '{ticker}' AND {config.prediction_column_name} = '1'")
+            self._run_query(f"DELETE FROM {config.table_name} WHERE {config.ticker_column_name} = '{ticker}' AND {config.prediction_column_name} = '1'")
+
+        self.conn.commit()
 
     def update(self, ticker, start, end=None):
 
@@ -50,7 +54,8 @@ class session:
 
         start = datetime.strptime(start, "%Y-%m-%d").date()
 
-        datesTuple = self.cursor.execute(f"SELECT {config.date_column_name} FROM {config.table_name} WHERE {config.ticker_column_name} = '{ticker}'").fetchall()
+        datesTuple = self._run_query(f"SELECT {config.date_column_name} FROM {config.table_name} WHERE {config.ticker_column_name} = '{ticker}'").fetchall()
+
         datesArray = []
 
         for i in datesTuple:
@@ -63,15 +68,17 @@ class session:
             self.__add_data(ticker, start, end)
             return
         
-        newest = datetime.strptime(newestStr, "%Y-%m-%d").date()
-        oldest = datetime.strptime(oldestStr, "%Y-%m-%d").date()
 
-        if (newest < end):
-            # print(f"Adding data to end from {newest} to {end}")
-            self.__add_data(ticker, newest, end)
-        elif (start < oldest):
-            # print(f"Adding data to beginning from {start} to {oldest}")
-            self.__add_data(ticker, start, oldest)
 
         # self.clear_data(ticker)
         # self.__add_data(ticker, realDate, end)
+
+    def _run_query(self, query):
+        for i in range(0, 5):
+            try:
+                return self.cursor.execute(query)
+            except Exception as e:
+                if e is sqlite3.OperationalError:
+                    time.sleep(1)
+                    continue
+__add_data(ticker, realDate, end)

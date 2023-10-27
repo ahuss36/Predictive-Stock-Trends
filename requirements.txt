@@ -1,2 +1,2 @@
-sqlite
 alpaca_trade_api
+pandas
