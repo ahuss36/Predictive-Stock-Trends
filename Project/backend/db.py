@@ -23,15 +23,17 @@ class session:
         for index, row in data.iterrows(): # iterate through the data and add it to the database
 
             time_obj = pd.to_datetime(row["time"], unit="s")
-            unix_time = time_obj.timestamp()
+            timestamp = time_obj.to_pydatetime().date()
 
             # This is awful and painful but I have no better solution so it will persist until soom*tm*
             self._run_query(f"INSERT INTO {config.table_name} ({config.id_column_name}, {config.ticker_column_name}, {config.price_column_name}, {config.date_column_name}, {config.prediction_column_name}) VALUES (?, ?, ?, ?, ?)", (random.randint(0, 9223372036854775808), ticker, row["close"], timestamp, "0"))
+
         
         self.conn.commit()
 
     def clear_data(self, ticker):
         self._run_query(f"DELETE FROM {config.table_name} WHERE {config.ticker_column_name} = '{ticker}'")
+
         self.conn.commit()
 
     def clear_prediction(self, ticker=None): # UNTESTED
@@ -44,13 +46,16 @@ class session:
         self.conn.commit()
 
     def update(self, ticker, start, end=None):
-        if end is None:
-            end = datetime.now().date() - timedelta(days = 1)
 
-        self.__clear_data(ticker)
-        self.__add_data(ticker, start, end)
+        if end is None: # if no end date is specified, use yesterday
+            end = datetime.now().date() - timedelta(days = 1)
+        else: # otherwise, convert the end date to a datetime object
+            end = datetime.strptime(end, "%Y-%m-%d").date()
+
+        start = datetime.strptime(start, "%Y-%m-%d").date()
 
         datesTuple = self._run_query(f"SELECT {config.date_column_name} FROM {config.table_name} WHERE {config.ticker_column_name} = '{ticker}'").fetchall()
+
         datesArray = []
 
         for i in datesTuple:
@@ -76,3 +81,4 @@ class session:
                 if e is sqlite3.OperationalError:
                     time.sleep(1)
                     continue
+__add_data(ticker, realDate, end)
