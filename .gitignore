@@ -3,6 +3,4 @@
 .venv/
 *.db
 *.sqlite3
-*.sqlite3
-*.sqlite3
-Project/stockDatabase/db.sqlite3
+
