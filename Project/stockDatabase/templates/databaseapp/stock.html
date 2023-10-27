@@ -6,7 +6,7 @@
     <body>
         <h2>Stocks</h2>
         {% for stock in stocks%}
-        Close: {{stock.stock_name}} ${{stock.stock_predicted}} <br>
+        Close: {{stock.stock_ticker}} ${{stock.stock_close_price}} <br>
         {% endfor %}
     </body>
 </html>
