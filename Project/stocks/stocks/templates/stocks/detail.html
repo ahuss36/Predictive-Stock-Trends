@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>{{name}}</title>
+    </head>
+    <body>
+        <h1>Details for {{name}}</h1>
+        <input type="button" value="Back" onclick="window.location.href='/'">
+        <table>
+            {% for stock in data %}
+                <tr>
+                    <th>{{stock.date}}</th>
+                    <th>{{stock.close}}</th>
+                </tr>
+            {% endfor %}
+        </table>
+    </body>
+</html>

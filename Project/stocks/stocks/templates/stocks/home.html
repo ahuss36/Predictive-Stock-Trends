@@ -1,1 +1,25 @@
-Hello, world!
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Stock Prediction</title>
+    </head>
+    <body>
+        <H1>Add or remove tickers</H1>
+        <form action="/add" method="POST">
+            {% csrf_token %}
+            <input type="text" name="ticker" placeholder="Ticker">
+            <br>
+            <input type="radio" name="action" value="add" checked>Add<br>
+            <input type="radio" name="action" value="remove">Remove<br>
+            <input type="submit" value="Submit">
+        <H1>Available Tickers</H1>
+        <ul>
+            {% for ticker in tickers %}
+
+                <li><a href="detail/{{ticker}}">{{ticker}}</a></li>
+
+            {% endfor %}
+        </ul>
+    </body>
+</html>
