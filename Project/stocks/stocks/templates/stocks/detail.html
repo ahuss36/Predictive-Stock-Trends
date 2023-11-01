@@ -4,6 +4,48 @@
         <title>{{name}}</title>
     </head>
     <body>
+
+        <h1>Historical price chart for {{name}}</h1>
+        
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@4.2.1/dist/chart.umd.min.js"></script>
+
+        <canvas id="chart" width="500" height="500"></canvas>
+
+        <script>
+            let ctx = document.getElementById("chart").getContext("2d");
+
+            var dates = []
+            var prices = []
+
+            {% for stock in data %} // this has errors here, but works fine in deployment since Django is doing the parsing, not JS
+                dates.push("{{stock.date}}")
+            {% endfor %}
+
+            {% for stock in data %}
+                prices.push("{{stock.close}}")
+            {% endfor %}
+
+            let chart = new Chart(ctx, {
+            type: "line",
+            data: {
+                labels: dates,
+                datasets: [
+                    {
+                    label: "Prices for {{name}}",
+                    backgroundColor: "#79AEC8",
+                    borderColor: "#417690",
+                    data: prices
+                    }
+                ]
+            },
+            options: {
+                responsive: false,
+                pointRadius: 0,
+            }
+            });
+        </script>
+
+
         <h1>Details for {{name}}</h1>
         <input type="button" value="Back" onclick="window.location.href='/'">
         <table>
