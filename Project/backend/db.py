@@ -81,4 +81,3 @@ class session:
                 if e is sqlite3.OperationalError:
                     time.sleep(1)
                     continue
-__add_data(ticker, realDate, end)
