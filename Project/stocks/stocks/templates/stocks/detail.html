@@ -48,39 +48,6 @@
             });
         </script>
 
-        {% comment %} <script>
-
-            document.querySelector('button').addEventListener('click', filterData)
-
-            function filterData() {
-                let chart = document.getElementById("chart").getContext("2d");
-
-                let start = document.getElementById("start").value
-                let end = document.getElementById("end").value
-
-                var dates = []
-                var prices = []
-
-                {% for stock in data %}
-                    if ({{stock.date}} >= start && {{stock.date}} <= end) {
-                        dates.push("{{stock.date}}")
-                        prices.push("{{stock.close}}")
-                    }
-                {% endfor %}
-
-                chart.data.labels = dates
-                chart.data.data.datasets.data = prices
-            }
-
-        </script>
-
-        <!-- let user filter time period for data -->
-        <label for="start">Start date:</label>
-        <input type="date" id="start" name="start" value="2021-01-01" min="2010-01-01" max="2030-12-31">
-        <label for="end">End date:</label>
-        <input type="date" id="end" name="end" value="2021-12-31" min="2010-01-01" max="2030-12-31">
-        <input type="button" value="Filter" onclick=filterData()> {% endcomment %}
-
         <h1>Day breakdown for {{name}}</h1>
         <input type="button" value="Back" onclick="window.location.href='/'">
         <table>
