@@ -1,25 +1,51 @@
 <!DOCTYPE html>
 <html>
+
+    <style>
+        .manager {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .stockList {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+    </style>
+
+    <link rel="stylesheet" href="https://unpkg.com/mvp.css"> 
     <head>
         <meta charset="utf-8">
         <title>Stock Prediction</title>
     </head>
     <body>
-        <H1>Add or remove tickers</H1>
-        <form action="/add" method="POST">
-            {% csrf_token %}
-            <input type="text" name="ticker" placeholder="Ticker">
-            <br>
-            <input type="radio" name="action" value="add" checked>Add<br>
-            <input type="radio" name="action" value="remove">Remove<br>
-            <input type="submit" value="Submit">
-        <H1>Available Tickers</H1>
-        <ul>
-            {% for ticker in tickers %}
+        <div class="manager">
 
-                <li><a href="detail/{{ticker}}">{{ticker}}</a></li>
+            <H1>Add or remove tickers</H1>
+            <form action="/add" method="POST">
+                {% csrf_token %}
+                <input type="text" name="ticker" placeholder="Ticker">
+                <br>
+                <input type="radio" name="action" value="add" checked>Add<br>
+                <input type="radio" name="action" value="remove">Remove<br>
+                <input type="submit" value="Submit">
+            </form>
 
-            {% endfor %}
-        </ul>
+        </div>
+
+        <div class="stockList">
+        
+            <H1>Available Tickers</H1>
+            <ul>
+                {% for ticker in tickers %}
+
+                    <li><a href="detail/{{ticker}}">{{ticker}}</a></li>
+
+                {% endfor %}
+            </ul>
+
+        </div>
+
     </body>
 </html>

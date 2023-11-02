@@ -4,6 +4,9 @@ from .models import Stock
 from . import alpaca
 import pandas
 from datetime import datetime
+import time
+
+from .forms import FilterForm
 
 
 def home(request):
@@ -50,8 +53,30 @@ def add(request):
 
 def detail(request, ticker):
 
-    data = Stock.objects.filter(ticker=ticker)
+    timespan = None
 
+    if (request.method == "POST"):
+        form = FilterForm(request.POST)
+
+        if form.is_valid():
+            start = form.cleaned_data['start']
+            end = form.cleaned_data['end']
+
+            timespan = str(int(time.mktime(start.timetuple()))) + "-" + str(int(time.mktime(end.timetuple())))
+
+    data = Stock.objects.filter(ticker=ticker)
     name = data[0].ticker
 
-    return render(request, 'stocks/detail.html', {'data': data, 'name': name})
+    form = FilterForm()
+
+    if (timespan == None):
+        return render(request, 'stocks/detail.html', {'data': data, 'name': name, 'form': form})
+    
+    # if we get to here, timespan is defined. It is [unixtime_start]-[unixtime_end] to allow it to be fed via a URL
+
+    startTime = datetime.fromtimestamp(int(timespan.split("-")[0]))
+    endTime = datetime.fromtimestamp(int(timespan.split("-")[1]))
+    
+    data = Stock.objects.filter(ticker=ticker, date__range=[startTime, endTime])
+
+    return render(request, 'stocks/detail.html', {'data': data, 'name': name, 'form': form})
