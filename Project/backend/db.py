@@ -26,7 +26,7 @@ class session:
             timestamp = time_obj.to_pydatetime().date()
 
             # This is awful and painful but I have no better solution so it will persist until soom*tm*
-            self._run_query(f"INSERT INTO {config.table_name} ({config.id_column_name}, {config.ticker_column_name}, {config.price_column_name}, {config.date_column_name}, {config.prediction_column_name}) VALUES (?, ?, ?, ?, ?)", (random.randint(0, 9223372036854775808), ticker, row["close"], timestamp, "0"))
+            self.cursor.execute(f"INSERT INTO {config.table_name} ({config.id_column_name}, {config.ticker_column_name}, {config.price_column_name}, {config.date_column_name}, {config.prediction_column_name}) VALUES (?, ?, ?, ?, ?)", (random.randint(0, 9223372036854775808), ticker, row["close"], timestamp, "0"))
 
         
         self.conn.commit()
@@ -81,4 +81,3 @@ class session:
                 if e is sqlite3.OperationalError:
                     time.sleep(1)
                     continue
-__add_data(ticker, realDate, end)
