@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+    <link rel="stylesheet" href="https://unpkg.com/mvp.css"> 
+
+    <head>
+        <title>{{name}}</title>
+    </head>
+
+    <input type="button" value="Back" onclick="window.location.href='/'">
+
+    <style>
+        .row1 {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: row;
+        }
+        .chartContainer {
+            padding: 20px;
+        }
+        .filterSettings {
+            padding: 20px;
+        }
+    </style>
+
+    <body>
+        
+        <div class="row1">
+            <div class="chartContainer" >
+
+                <h1>Historical price chart for {{name}}</h1>
+                
+                <script src="https://cdn.jsdelivr.net/npm/chart.js@4.2.1/dist/chart.umd.min.js"></script>
+
+                <canvas id="chart" width="500" height="500" alignment="center"></canvas>
+
+                <script>
+                    let ctx = document.getElementById("chart").getContext("2d");
+
+                    var width = window.innerWidth
+                    var height = window.innerHeight
+
+                    ctx.canvas.width = width * 0.7
+                    ctx.canvas.height = height * 0.5
+
+                    var dates = []
+                    var prices = []
+
+                    {% for stock in data %}
+                        dates.push("{{stock.date}}")
+                        prices.push("{{stock.close}}")
+                    {% endfor %}
+
+                    let chart = new Chart(ctx, {
+                    type: "line",
+                    data: {
+                        labels: dates,
+                        datasets: [
+                            {
+                            label: "Prices for {{name}}",
+                            backgroundColor: "#79AEC8",
+                            borderColor: "#417690",
+                            data: prices
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: false,
+                        pointRadius: 0,
+                    }
+                    });
+                </script>
+
+                
+
+            </div>
+
+            <div class="filterSettings">
+                <h1>Filter</h1>
+                
+                <form method="POST" action="/detail/{{name}}/">
+                    {% csrf_token %}
+                    {{form.as_p}}
+                    <input type="submit" value="Filter">
+                </form>
+            </div>
+        </div>
+
+        <div class="row2">
+            PLACEHOLDER: DATA PROCESSING INFORMATION AND FORM GO HERE
+        </div>
+
+    </body>
+</html>
