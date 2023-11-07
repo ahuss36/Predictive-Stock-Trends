@@ -6,7 +6,10 @@
         <title>{{name}}</title>
     </head>
 
-    <input type="button" value="Back" onclick="window.location.href='/'">
+
+    <div class="backButton">
+        <input type="button" value="Back" onclick="window.location.href='/'">
+    </div>
 
     <style>
         .row1 {
@@ -15,12 +18,25 @@
             align-items: center;
             flex-direction: row;
         }
+        .row2 {
+            display: flex;
+            justify-content: left;
+            align-items: left;
+            flex-direction: row;
+        }
         .chartContainer {
             padding: 20px;
         }
         .filterSettings {
             padding: 20px;
         }
+        .predictionActions {
+            padding: 20px;
+        }
+        .backButton {
+            padding: 20px;
+        }
+
     </style>
 
     <body>
@@ -80,14 +96,20 @@
                 
                 <form method="POST" action="/detail/{{name}}/">
                     {% csrf_token %}
-                    {{form.as_p}}
+                    {{forms.filterForm.as_p}}
                     <input type="submit" value="Filter">
                 </form>
             </div>
         </div>
 
         <div class="row2">
-            PLACEHOLDER: DATA PROCESSING INFORMATION AND FORM GO HERE
+            <div class="predictionActions">
+                <h1>Predictions Menu</h1>
+                <form method="POST" action="/detail/{{name}}/">
+                    {% csrf_token %}
+                    {{forms.predictForm.as_p}}
+                    <input type="submit" value="Predict">
+            </div>
         </div>
 
     </body>

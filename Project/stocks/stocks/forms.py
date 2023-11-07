@@ -19,3 +19,9 @@ class AddForm(forms.Form):
     action = forms.ChoiceField(label='Action', choices=[('add', 'Add'), ('remove', 'Remove')])
 
     start = forms.DateField(label='Start Date', widget=forms.DateInput(attrs={'type': 'date', 'max': today, 'min': '2016-01-01', 'value': '2016-01-01'})) # Due to limitations with Alpaca, we cannot get data before 2016
+
+class PredictForm(forms.Form):
+
+    tomorrow = (datetime.now().date() + timedelta(days=1)).strftime("%Y-%m-%d")
+
+    predictUntil = forms.DateField(label='Prediction End', widget=forms.DateInput(attrs={'type': 'date', 'min': '2016-01-01', 'value': tomorrow}))
