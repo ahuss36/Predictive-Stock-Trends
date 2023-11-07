@@ -3,10 +3,11 @@ from django.shortcuts import render
 from .models import Stock
 from . import alpaca
 import pandas
-from datetime import datetime
+from datetime import datetime, timedelta
 import time
+import threading
 
-from .forms import FilterForm
+from .forms import FilterForm, AddForm
 
 
 def home(request):
@@ -14,30 +15,47 @@ def home(request):
     raw = Stock.objects.all()
     rawTickers = []
 
+    form = AddForm()
+
     for i in raw:
         rawTickers.append(i.ticker)
 
     tickers = set(rawTickers)
 
-    return render(request, 'stocks/home.html', {'tickers': tickers})
+    return render(request, 'stocks/home.html', {'tickers': tickers, 'form': form})
+
+def add_data(ticker, action, start):
+
+    today = datetime.now().date().strftime("%Y-%m-%d")
+
+    session = alpaca.session()
+    data = session.get_history(ticker, "1D", start)
+
+    for index, row in data.iterrows():
+        time_obj = pandas.to_datetime(row["time"], unit="s")
+        timestamp = time_obj.to_pydatetime().date()
+
+        stock = Stock(ticker=ticker, close=row["close"], date=timestamp)
+        stock.save()
+    
 
 def add(request):
-    ticker = request.POST.get('ticker')
 
+    ticker = request.POST.get('ticker')
 
     action = request.POST.get('action')
 
     if ticker is not None and action == "add":
 
-        session = alpaca.session()
-        data = session.get_history(ticker, "1D", "2020-01-01")
+        ticker = request.POST.get('ticker')
+        action = request.POST.get('action')
+        start_raw = request.POST.get('start')
 
-        for index, row in data.iterrows():
-            time_obj = pandas.to_datetime(row["time"], unit="s")
-            timestamp = time_obj.to_pydatetime().date()
+        start = datetime.strptime(start_raw, "%Y-%m-%d").date()
 
-            stock = Stock(ticker=ticker, close=row["close"], date=timestamp)
-            stock.save()
+        task = threading.Thread(target=add_data, args=(ticker, action, start))
+
+        task.start()
 
         return HttpResponseRedirect('/')
     
@@ -62,7 +80,13 @@ def detail(request, ticker):
             start = form.cleaned_data['start']
             end = form.cleaned_data['end']
 
-            timespan = str(int(time.mktime(start.timetuple()))) + "-" + str(int(time.mktime(end.timetuple())))
+            try:
+                # timespan is a string that looks like this: [unixtime_start]-[unixtime_end]
+                timespan = str(int(time.mktime(start.timetuple()))) + "-" + str(int(time.mktime(end.timetuple())))
+            except OverflowError:
+                timespan = "0-" + str(int(time.mktime(end.timetuple())))
+
+    # TODO: only get data from database once
 
     data = Stock.objects.filter(ticker=ticker)
     name = data[0].ticker

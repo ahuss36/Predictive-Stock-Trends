@@ -8,20 +8,24 @@
 
     <input type="button" value="Back" onclick="window.location.href='/'">
 
+    <style>
+        .row1 {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: row;
+        }
+        .chartContainer {
+            padding: 20px;
+        }
+        .filterSettings {
+            padding: 20px;
+        }
+    </style>
 
     <body>
         
-        <div class="container">
-
-            <style>
-                .container {
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    flex-direction: row;
-                }
-            </style>
-
+        <div class="row1">
             <div class="chartContainer" >
 
                 <h1>Historical price chart for {{name}}</h1>
@@ -36,7 +40,7 @@
                     var width = window.innerWidth
                     var height = window.innerHeight
 
-                    ctx.canvas.width = width * 0.8
+                    ctx.canvas.width = width * 0.7
                     ctx.canvas.height = height * 0.5
 
                     var dates = []
@@ -81,5 +85,10 @@
                 </form>
             </div>
         </div>
+
+        <div class="row2">
+            PLACEHOLDER: DATA PROCESSING INFORMATION AND FORM GO HERE
+        </div>
+
     </body>
 </html>

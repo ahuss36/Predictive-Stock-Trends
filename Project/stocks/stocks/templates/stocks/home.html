@@ -6,11 +6,29 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            padding: 20px;
         }
+        .row1 {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+        }
+
         .stockList {
             display: flex;
             flex-direction: column;
             align-items: center;
+        }
+        .stockLinks {
+            border: 1px solid var(--color-bg-secondary);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow) var(--color-shadow);
+            display: block;
+            max-width: var(--width-card-wide);
+            min-width: var(--width-card);
+            padding: 1.5rem;
+            text-align: var(--justify-normal);
         }
     </style>
 
@@ -20,31 +38,32 @@
         <title>Stock Prediction</title>
     </head>
     <body>
-        <div class="manager">
+        <div class="row1">
+            <div class="manager">
 
-            <H1>Add or remove tickers</H1>
-            <form action="/add" method="POST">
-                {% csrf_token %}
-                <input type="text" name="ticker" placeholder="Ticker">
-                <br>
-                <input type="radio" name="action" value="add" checked>Add<br>
-                <input type="radio" name="action" value="remove">Remove<br>
-                <input type="submit" value="Submit">
-            </form>
+                <H1>Add or remove tickers</H1>
 
-        </div>
+                <form action="/add" method="POST">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <input type="submit" value="Submit">
+                </form>
 
-        <div class="stockList">
-        
-            <H1>Available Tickers</H1>
-            <ul>
-                {% for ticker in tickers %}
+            </div>
 
-                    <li><a href="detail/{{ticker}}">{{ticker}}</a></li>
+            <div class="stockList">
+            
+                <H1>Available Tickers</H1>
 
-                {% endfor %}
-            </ul>
+                <ul class="stockLinks">
+                    {% for ticker in tickers %}
 
+                        <li><a href="detail/{{ticker}}">{{ticker}}</a></li>
+
+                    {% endfor %}
+                </ul>
+
+            </div>
         </div>
 
     </body>
