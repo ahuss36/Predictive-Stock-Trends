@@ -5,8 +5,8 @@ import pandas as pd
 
 class session:
 
-    ALPACA_API_KEY = "PK4B928AJY8WOHKYXLFP" # These have zero damage potential, so I am not worried about them being public
-    ALPACA_SECRET_KEY = "nZpB5btAryUDZSbC9YtLOHNKLlaTCabaCp4KV1jY"
+    ALPACA_API_KEY = "PKNA5BRTUQNYGT6HKOKU" # These have zero damage potential, so I am not worried about them being public
+    ALPACA_SECRET_KEY = "UW2YAU3T6J0meNvwiNQbcqxwtYWu5anHxoe0AVgu"
     BASE_URL = "https://paper-api.alpaca.markets"
 
     def __init__(self):
