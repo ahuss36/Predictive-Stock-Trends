@@ -75,7 +75,7 @@ model.summary() #Show the summary of our LSTM network architecture
 
 #TRAINING THE LSTM MODEL
 model.compile(optimizer='adam', loss='mean_squared_error') #Adopt “adam” optimizer and set the mean square error as loss function
-model.fit(x_train, y_train, batch_size= 4, epochs=12) #Train the model by fitting it with the training set. epoch = 3x column number 
+model.fit(x_train, y_train, batch_size= 256, epochs=6) #Train the model by fitting it with the training set. epoch = 3x column number 
 #(INCREASING THE BATCH SIZE DECREASES TIME AT THE COST OF ACCURACY)
 
 #EVALUATE THE MODEL
