@@ -1,5 +1,5 @@
 import sqlite3
-import alpaca
+import alpaca_trade_api as alpaca
 from datetime import timedelta
 from datetime import datetime
 import time

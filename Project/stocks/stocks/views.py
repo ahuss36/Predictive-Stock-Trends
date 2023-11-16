@@ -31,12 +31,22 @@ def add_data(ticker, action, start):
     session = alpaca.session()
     data = session.get_history(ticker, "1D", start)
 
+    tickerPastData = Stock.objects.filter(ticker=ticker)
+
+    # get list of dates that we already have data for
+    dates = []
+    for i in tickerPastData:
+        print(i.date)
+        dates.append(i.date)
+
     for index, row in data.iterrows():
         time_obj = pandas.to_datetime(row["time"], unit="s")
         timestamp = time_obj.to_pydatetime().date()
 
         stock = Stock(ticker=ticker, close=row["close"], date=timestamp)
-        stock.save()
+        if(stock.date not in dates):
+            stock.save()
+        
     
 
 def add(request):
