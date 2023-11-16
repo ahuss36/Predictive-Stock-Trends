@@ -23,7 +23,7 @@ scaler = MinMaxScaler(feature_range=(0,1))
 close_prices_scaled = scaler.fit_transform(close_prices.values.reshape(-1, 1))
 
 #Set the rolling window size
-window_size = 10
+window_size = 60
 
 #Create seqeunces and targets
 X, y = lstm_functions.create_sequences(close_prices_scaled, window_size)
@@ -56,7 +56,7 @@ lstm_functions.plot_results(y_test, predictions)
 
 
 # Number of days to predict into the future
-n_days_future = 365
+n_days_future = 7
 
 # Predict future stock prices
 last_sequence = X_test[-1]

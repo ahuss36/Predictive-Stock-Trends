@@ -52,8 +52,3 @@ def predict_future_prices(model, last_sequence, n_steps):
         last_sequence[-1, 0] = next_pred  # Update the last value in the sequence with the predicted value
 
     return future_predictions
-
-
-
-
-
