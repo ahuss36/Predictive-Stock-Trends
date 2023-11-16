@@ -24,6 +24,6 @@ urlpatterns = [
     path('home/', views.home),
     path('', views.home),
     path('add', views.add),
-    path('detail/<str:ticker>', views.detail),
+    path('detail/<str:ticker>/', views.detail),
     # path('detail/<str:ticker>/', views.detail),
 ]
