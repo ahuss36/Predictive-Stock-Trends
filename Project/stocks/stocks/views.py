@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 import time
 import threading
 
-from .forms import FilterForm, AddForm
+from .forms import FilterForm, AddForm, PredictForm
 
 
 def home(request):
@@ -101,10 +101,16 @@ def detail(request, ticker):
     data = Stock.objects.filter(ticker=ticker)
     name = data[0].ticker
 
-    form = FilterForm()
+    filterForm = FilterForm()
+    predictForm = PredictForm()
+
+    forms = {
+        'filterForm': filterForm,
+        'predictForm': predictForm
+    }
 
     if (timespan == None):
-        return render(request, 'stocks/detail.html', {'data': data, 'name': name, 'form': form})
+        return render(request, 'stocks/detail.html', {'data': data, 'name': name, 'forms': forms})
     
     # if we get to here, timespan is defined. It is [unixtime_start]-[unixtime_end] to allow it to be fed via a URL
 

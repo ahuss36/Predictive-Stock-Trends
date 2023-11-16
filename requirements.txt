@@ -1,2 +1,4 @@
-alpaca_trade_api
+alpaca-trade-api
 pandas
+django
+keras
