@@ -11,8 +11,8 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import train_test_split
 from keras.models import Sequential
 from keras.layers import LSTM, Dense
-import alpaca
 
+from . import alpaca
 from . import lstm_functions
 
 def trainModel(data, filename):
@@ -23,8 +23,12 @@ def loadModel(ticker):
         # load model from file
         filename = ticker.lower() + '.keras' # files should be saved as .keras
         model = keras.models.load_model(filename)
-    except:
-        return False
+    # if the file does not exist, train a new model
+    except (FileNotFoundError, OSError):
+        data = models.Stock.objects.filter(ticker=ticker)
+        model = train(ticker, data)
+
+        return model
     
     return model
 
@@ -33,7 +37,7 @@ def saveModel(model, ticker):
         # save model to file
         filename = ticker.lower() + '.keras' # files should be saved as .keras
         model.save(filename)
-        return True
+        return model
     except:
         return False
 
@@ -72,7 +76,7 @@ def predict(ticker, daysOut=3):
 
         dbModel.save()
     
-def train(ticker, data):
+def train(ticker, data): # Train a new model from scratch
 
     if (type(data) != pd.DataFrame):
         return False
@@ -106,3 +110,5 @@ def train(ticker, data):
 
     #Save model
     return saveModel(model, ticker)
+
+# TODO: ability to retrain a model based on new data
