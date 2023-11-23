@@ -23,5 +23,6 @@ class AddForm(forms.Form):
 class PredictForm(forms.Form):
 
     tomorrow = (datetime.now().date() + timedelta(days=1)).strftime("%Y-%m-%d")
+    sevenDaysOut = ((datetime.now().date() + timedelta(days=1)) + timedelta(days=6)).strftime("%Y-%m-%d")
 
-    predictUntil = forms.DateField(label='Prediction End', widget=forms.DateInput(attrs={'type': 'date', 'min': '2016-01-01', 'value': tomorrow}))
+    predictUntil = forms.DateField(label='Prediction End', widget=forms.DateInput(attrs={'type': 'date', 'min': tomorrow, 'max': sevenDaysOut, 'value': tomorrow}))

@@ -9,6 +9,8 @@ import threading
 
 from .forms import FilterForm, AddForm, PredictForm
 
+from . import lstm
+
 
 def home(request):
 
@@ -46,8 +48,6 @@ def add_data(ticker, action, start):
         stock = Stock(ticker=ticker, close=row["close"], date=timestamp)
         if(stock.date not in dates):
             stock.save()
-        
-    
 
 def add(request):
 
@@ -96,8 +96,6 @@ def detail(request, ticker):
             except OverflowError:
                 timespan = "0-" + str(int(time.mktime(end.timetuple())))
 
-    # TODO: only get data from database once
-
     data = Stock.objects.filter(ticker=ticker)
     name = data[0].ticker
 
@@ -120,3 +118,25 @@ def detail(request, ticker):
     data = Stock.objects.filter(ticker=ticker, date__range=[startTime, endTime])
 
     return render(request, 'stocks/detail.html', {'data': data, 'name': name, 'form': form})
+
+def predict(request, ticker):
+
+    if (request.method == "GET"):
+        return HttpResponseRedirect('/detail/' + ticker)
+
+    if (request.method == "POST"):
+        form = PredictForm(request.POST)
+
+        if form.is_valid():
+            daysOut = form.cleaned_data['predictUntil']
+        else:
+            return False
+        
+        # convert daysOut (a date string) to the number of days between now and then
+        daysOut = datetime.strptime(str(daysOut), "%Y-%m-%d").date() - datetime.now().date()
+
+        daysOut = daysOut.days
+        
+        lstm.predict(ticker, daysOut)
+
+    return HttpResponseRedirect('/detail/' + ticker)

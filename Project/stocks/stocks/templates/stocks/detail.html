@@ -105,7 +105,7 @@
         <div class="row2">
             <div class="predictionActions">
                 <h1>Predictions Menu</h1>
-                <form method="POST" action="/detail/{{name}}/">
+                <form method="POST" action="/predict/{{name}}/">
                     {% csrf_token %}
                     {{forms.predictForm.as_p}}
                     <input type="submit" value="Predict">
