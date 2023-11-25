@@ -44,7 +44,10 @@ def predict(ticker, daysOut=3):
     if (model == False):
         return False
     
-    # TODO: what is last_sequence?
+    data = models.Stock.objects.filter(ticker=ticker) # pull raw data
+    windows = lstm_functions.create_sequences(data, 60) # generate windows
+
+    last_sequence = windows[-1] # grab last window
 
     for i in range(daysOut):
         next_pred = model.predict(last_sequence.reshape(1, last_sequence.shape[0], 1))[0, 0]
