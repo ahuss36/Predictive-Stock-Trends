@@ -9,9 +9,6 @@ from . import models
 from . import alpaca
 from . import lstm_functions
 
-def trainModel(data, filename):
-    return True
-
 def loadModel(ticker):
     try:
         # load model from file
