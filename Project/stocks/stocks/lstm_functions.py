@@ -1,10 +1,7 @@
 import numpy as np
 import pandas as pd
-from sklearn.preprocessing import MinMaxScaler
 from keras.models import Sequential
 from keras.layers import LSTM, Dense
-import matplotlib.pyplot as plt
-
 
 def create_sequences(data, seq_length):
     sequences = []
@@ -26,21 +23,6 @@ def build_lstm_model(input_shape):
     
 def train_model(model, X_train, y_train, epochs=50, batch_size=32):
     model.fit(X_train, y_train, epochs=epochs, batch_size=batch_size)
-
-def plot_results(y_test, predictions, future_predictions=None):
-    plt.figure(figsize=(14, 7))
-    plt.plot(y_test, label='Actual Stock Price', color='orange')
-    plt.plot(predictions, label='Predicted Stock Price', color='green')
-
-    if future_predictions is not None:
-        plt.plot(range(len(y_test), len(y_test) + len(future_predictions)), future_predictions,
-                 label='Future Predictions', color='blue')
-
-    plt.title('Stock Price Prediction and Future Forecast using LSTM')
-    plt.xlabel('Time')
-    plt.ylabel('Stock Price')
-    plt.legend()
-    plt.show()
 
 def predict_future_prices(model, last_sequence, n_steps):
     future_predictions = []

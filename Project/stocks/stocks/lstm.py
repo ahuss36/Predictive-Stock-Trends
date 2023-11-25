@@ -1,17 +1,11 @@
 import datetime
-from . import models
 import pandas as pd
 from pandas import DataFrame as df
-import tensorflow as tf
 import keras
 import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.dates as mdates
 from sklearn.preprocessing import MinMaxScaler
-from sklearn.model_selection import train_test_split
-from keras.models import Sequential
-from keras.layers import LSTM, Dense
 
+from . import models
 from . import alpaca
 from . import lstm_functions
 
