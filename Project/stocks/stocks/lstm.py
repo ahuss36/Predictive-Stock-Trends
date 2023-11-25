@@ -9,17 +9,16 @@ from . import models
 from . import alpaca
 from . import lstm_functions
 
-def loadModel(ticker):
+def loadModel(ticker): # Load a given ticker's LSTM model, or train a new one if it doesn't exist
     try:
         # load model from file
         filename = ticker.lower() + '.keras' # files should be saved as .keras
         model = keras.models.load_model(filename)
-    # if the file does not exist, train a new model
-    except (FileNotFoundError, OSError):
-        data = models.Stock.objects.filter(ticker=ticker)
-        model = train(ticker, data)
+    except (FileNotFoundError, OSError): # if the file does not exist, train a new model
+        data = models.Stock.objects.filter(ticker=ticker) # pull data for stock
+        model = train(ticker, data) # train new model
 
-        return model
+        return model # return newly trained model
     
     return model
 
@@ -41,7 +40,7 @@ def predict(ticker, daysOut=3):
 
     model = loadModel(ticker)
 
-    if (model == False):
+    if (model == False): # if loadModel errored out, return False here and let something else handle it
         return False
     
     data = models.Stock.objects.filter(ticker=ticker) # pull raw data
@@ -60,12 +59,12 @@ def predict(ticker, daysOut=3):
     and at max we are looping 7 times, so it shouldn't be a big deal
     """
 
-    for i in range(daysOut):
+    for i in range(daysOut): # saving the predictions to database
         dbModel = models.Stock()
 
         dbModel.ticker = ticker
         dbModel.close = future_predictions[i]
-        dbModel.date = datetime.datetime.now().date() + datetime.timedelta(days=i)
+        dbModel.date = datetime.datetime.now().date() + datetime.timedelta(days=i) # today's date plus 'i'
         dbModel.prediction = True # This HAS to be true here
 
         dbModel.save()

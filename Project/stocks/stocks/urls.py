@@ -23,7 +23,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('home/', views.home),
     path('', views.home),
-    path('add', views.add),
-    path('detail/<str:ticker>/', views.detail),
-    path('predict/<str:ticker>/', views.predict),
+    path('add', views.add), # for add/remove requests, not actual webpage
+    path('detail/<str:ticker>/', views.detail), 
+    path('predict/<str:ticker>/', views.predict), # for prediction requests, not actual webpage
 ]

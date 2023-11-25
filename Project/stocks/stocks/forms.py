@@ -9,7 +9,7 @@ class FilterForm(forms.Form):
     start = forms.DateField(label='Start Date', widget=forms.DateInput(attrs={'type': 'date', 'max': today, 'value': yearAgo}))
     end = forms.DateField(label='End Date', widget=forms.DateInput(attrs={'type': 'date', 'max': today, 'value': today}))
 
-class AddForm(forms.Form):
+class AddForm(forms.Form): # form to add ticker data
 
     today = datetime.now().date().strftime("%Y-%m-%d")
     yearAgo = (datetime.now().date() - timedelta(days=365)).strftime("%Y-%m-%d")
@@ -20,7 +20,7 @@ class AddForm(forms.Form):
 
     start = forms.DateField(label='Start Date', widget=forms.DateInput(attrs={'type': 'date', 'max': today, 'min': '2016-01-01', 'value': '2016-01-01'})) # Due to limitations with Alpaca, we cannot get data before 2016
 
-class PredictForm(forms.Form):
+class PredictForm(forms.Form): # form to request stock predictions
 
     tomorrow = (datetime.now().date() + timedelta(days=1)).strftime("%Y-%m-%d")
     sevenDaysOut = ((datetime.now().date() + timedelta(days=1)) + timedelta(days=6)).strftime("%Y-%m-%d")

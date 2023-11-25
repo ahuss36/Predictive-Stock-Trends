@@ -26,13 +26,17 @@ def home(request):
 
     return render(request, 'stocks/home.html', {'tickers': tickers, 'form': form})
 
-def add_data(ticker, action, start):
+def add_data(ticker, action, start): 
+    # add data to a the database given a ticker
+    # this is meant to be fired into a different thread instead of run in sequence
 
     today = datetime.now().date().strftime("%Y-%m-%d")
 
+    # pull raw data from alpaca
     session = alpaca.session()
     data = session.get_history(ticker, "1D", start)
 
+    # pull existing data from database
     tickerPastData = Stock.objects.filter(ticker=ticker)
 
     # get list of dates that we already have data for
@@ -41,37 +45,39 @@ def add_data(ticker, action, start):
         print(i.date)
         dates.append(i.date)
 
+    # add everything to database
     for index, row in data.iterrows():
+        # get the entry's date
         time_obj = pandas.to_datetime(row["time"], unit="s")
         timestamp = time_obj.to_pydatetime().date()
 
-        stock = Stock(ticker=ticker, close=row["close"], date=timestamp)
-        if(stock.date not in dates):
+        # prevent duplication
+        if(timestamp not in dates):
+            stock = Stock(ticker=ticker, close=row["close"], date=timestamp)
             stock.save()
 
-def add(request):
+def add(request): # this also serves as the remove function, I am just bad at naming things
 
     ticker = request.POST.get('ticker')
 
     action = request.POST.get('action')
 
-    if ticker is not None and action == "add":
+    if ticker is None:
+        return render(request, 'stocks/home.html')
 
-        ticker = request.POST.get('ticker')
-        action = request.POST.get('action')
+    if action == "add":
+
+        # get start date from request, and convert it into a datetime date object
         start_raw = request.POST.get('start')
-
         start = datetime.strptime(start_raw, "%Y-%m-%d").date()
 
+        # fire off add_data function into a separate thread since it is slow
         task = threading.Thread(target=add_data, args=(ticker, action, start))
-
         task.start()
 
         return HttpResponseRedirect('/')
     
-    elif ticker is not None and action == "remove":
-            
-            print("Removing " + ticker)
+    elif action == "remove":
             
             Stock.objects.filter(ticker=ticker).delete()
     
@@ -121,7 +127,7 @@ def detail(request, ticker):
 
 def predict(request, ticker):
 
-    if (request.method == "GET"):
+    if (request.method == "GET"): # catch if this is a GET request, just send the user to their corresponding detail page
         return HttpResponseRedirect('/detail/' + ticker)
 
     if (request.method == "POST"):
@@ -135,7 +141,7 @@ def predict(request, ticker):
         # convert daysOut (a date string) to the number of days between now and then
         daysOut = datetime.strptime(str(daysOut), "%Y-%m-%d").date() - datetime.now().date()
 
-        daysOut = daysOut.days
+        daysOut = daysOut.days # daysOut was previously some sort of duration object, this converts it to an int
         
         lstm.predict(ticker, daysOut)
 
