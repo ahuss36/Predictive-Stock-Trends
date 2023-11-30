@@ -14,7 +14,7 @@ def create_sequences(data, seq_length):
     return np.array(sequences), np.array(targets)
 
 def build_lstm_model(input_shape):
-    model = Sequential()
+    model = Sequential() 
     model.add(LSTM(units=50, return_sequences=True, input_shape=input_shape))
     model.add(LSTM(units=50))
     model.add(Dense(units=1))
@@ -28,6 +28,7 @@ def predict_future_prices(model, last_sequence, n_steps):
     future_predictions = []
 
     for i in range(n_steps):
+        print(last_sequence)
         next_pred = model.predict(last_sequence.reshape(1, last_sequence.shape[0], 1))[0, 0]
         future_predictions.append(next_pred)
         last_sequence = np.roll(last_sequence, -1)

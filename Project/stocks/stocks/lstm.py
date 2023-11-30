@@ -71,7 +71,6 @@ def predict(ticker, daysOut=3):
     windows = lstm_functions.create_sequences(data, 60) # generate windows
 
     print("Windows generated")
-
     last_sequence = windows[-1] # grab last window
 
     print("Predicting...")
@@ -80,11 +79,10 @@ def predict(ticker, daysOut=3):
 
     for i in range(daysOut):
         print(f"Predicting day {str(i + 1)} of {str(daysOut)}")
-        print(last_sequence)
         next_pred = model.predict(last_sequence.reshape(1, last_sequence.shape[0], 1))[0, 0]
         future_predictions.append(next_pred)
         last_sequence = np.roll(last_sequence, -1)
-        last_sequence[-1, 0] = next_pred  # Update the last value in the sequence with the predicted value
+        last_sequence[-1] = next_pred  # Update the last value in the sequence with the predicted value
 
     print("Done predicting")
     print("Saving predictions to database")
