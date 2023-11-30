@@ -64,6 +64,10 @@ def predict(ticker, daysOut=3):
     data = []
     for i in range(len(rawData)):
         data.append(rawData[i]['close']) # convert to list of values
+
+    scaler = MinMaxScaler(feature_range=(0,1))
+    data = scaler.fit_transform(data.values.reshape(-1, 1))
+
     windows = lstm_functions.create_sequences(data, 60) # generate windows
 
     print("Windows generated")
@@ -71,6 +75,8 @@ def predict(ticker, daysOut=3):
     last_sequence = windows[-1] # grab last window
 
     print("Predicting...")
+
+    
 
     for i in range(daysOut):
         print(f"Predicting day {str(i + 1)} of {str(daysOut)}")
@@ -87,6 +93,8 @@ def predict(ticker, daysOut=3):
     Technically looping through daysOut twice is wrong, but the code is way cleaner,
     and at max we are looping 7 times, so it shouldn't be a big deal
     """
+
+    future_predictions = scaler.inverse_transform(future_predictions)
 
     for i in range(daysOut): # saving the predictions to database
         print(f"Saving day {i} of {daysOut}, value {future_predictions[i]}")

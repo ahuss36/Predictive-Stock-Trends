@@ -14,7 +14,7 @@ import lstm_functions
 
 #Grabbing the Initial Data
 # get_history('AAPL', '1D', '2020-01-01', '2020-01-10'), end date is optional
-raw_data = alpaca.session().get_history('AAPL', '1H', '2015-01-01')
+raw_data = alpaca.session().get_history('AAPL', '1D', '2015-01-01')
 close_prices = raw_data['close']
 
 
