@@ -142,6 +142,8 @@ def predict(request, ticker):
         daysOut = datetime.strptime(str(daysOut), "%Y-%m-%d").date() - datetime.now().date()
 
         daysOut = daysOut.days # daysOut was previously some sort of duration object, this converts it to an int
+
+        print(f"Starting prediction for {daysOut} days out for {ticker}")
         
         lstm.predict(ticker, daysOut)
 

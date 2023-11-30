@@ -14,8 +14,18 @@ def loadModel(ticker): # Load a given ticker's LSTM model, or train a new one if
         # load model from file
         filename = ticker.lower() + '.keras' # files should be saved as .keras
         model = keras.models.load_model(filename)
+        print("Found existing model, loading...")
     except (FileNotFoundError, OSError): # if the file does not exist, train a new model
+        print("Model not found, training new model")
         data = models.Stock.objects.filter(ticker=ticker) # pull data for stock
+        print("Data pulled for new model training")
+
+        # convert data to dataframe containing just list and close
+
+        data = df(list(data.values('close')), columns=['close']) # convert to dataframe
+        data['date'] = data.index # add date column
+        data = data.set_index('date') # set date as index
+                
         model = train(ticker, data) # train new model
 
         return model # return newly trained model
@@ -37,22 +47,41 @@ def predict(ticker, daysOut=3):
         daysOut = 7
 
     future_predictions = []
+    
+    print("Loading model...")
 
     model = loadModel(ticker)
-
     if (model == False): # if loadModel errored out, return False here and let something else handle it
+        print("Model failed to load")
         return False
     
-    data = models.Stock.objects.filter(ticker=ticker) # pull raw data
+    print("Model loaded")
+
+    
+    rawData = models.Stock.objects.filter(ticker=ticker) # pull raw data
+    # convert data to list for sequcencing
+    rawData = rawData.values('close') # convert to list of dicts
+    data = []
+    for i in range(len(rawData)):
+        data.append(rawData[i]['close']) # convert to list of values
     windows = lstm_functions.create_sequences(data, 60) # generate windows
+
+    print("Windows generated")
 
     last_sequence = windows[-1] # grab last window
 
+    print("Predicting...")
+
     for i in range(daysOut):
+        print(f"Predicting day {str(i + 1)} of {str(daysOut)}")
+        print(last_sequence)
         next_pred = model.predict(last_sequence.reshape(1, last_sequence.shape[0], 1))[0, 0]
         future_predictions.append(next_pred)
         last_sequence = np.roll(last_sequence, -1)
         last_sequence[-1, 0] = next_pred  # Update the last value in the sequence with the predicted value
+
+    print("Done predicting")
+    print("Saving predictions to database")
 
     """
     Technically looping through daysOut twice is wrong, but the code is way cleaner,
@@ -60,6 +89,7 @@ def predict(ticker, daysOut=3):
     """
 
     for i in range(daysOut): # saving the predictions to database
+        print(f"Saving day {i} of {daysOut}, value {future_predictions[i]}")
         dbModel = models.Stock()
 
         dbModel.ticker = ticker
@@ -68,10 +98,15 @@ def predict(ticker, daysOut=3):
         dbModel.prediction = True # This HAS to be true here
 
         dbModel.save()
+
+    print("Done saving predictions to database")
     
 def train(ticker, data): # Train a new model from scratch
 
+    print(f"Beginning model training for {ticker}")
+
     if (type(data) != pd.DataFrame):
+        print("Data is not a dataframe, exiting...")
         return False
     
     close_prices = data['close']
