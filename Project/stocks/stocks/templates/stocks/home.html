@@ -48,6 +48,12 @@
                     <input type="submit" value="Submit">
                 </form>
 
+                {% if message != null %}
+
+                    <p>{{ message }}</p>
+
+                {% endif %}
+
             </div>
 
             <div class="stockList">

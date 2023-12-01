@@ -27,6 +27,20 @@ def home(request):
 
     return render(request, 'stocks/home.html', {'tickers': tickers, 'form': form})
 
+def renderHome(request, message = None):
+    
+        raw = Stock.objects.all()
+        rawTickers = []
+    
+        form = AddForm()
+    
+        for i in raw:
+            rawTickers.append(i.ticker)
+    
+        tickers = set(rawTickers)
+    
+        return render(request, 'stocks/home.html', {'tickers': tickers, 'form': form, 'message': message})
+
 def add_data(ticker, action, start): 
     # add data to a the database given a ticker
     # this is meant to be fired into a different thread instead of run in sequence
@@ -76,15 +90,15 @@ def add(request): # this also serves as the remove function, I am just bad at na
         task = threading.Thread(target=add_data, args=(ticker, action, start))
         task.start()
 
-        return HttpResponseRedirect('/')
+        message = "Data is being pulled, please wait for it to finish."
     
     elif action == "remove":
             
-            Stock.objects.filter(ticker=ticker).delete()
-    
-            return HttpResponseRedirect('/')
+        Stock.objects.filter(ticker=ticker).delete()
+        message = "Data has been removed."
 
-    return render(request, 'stocks/add.html')
+
+    return renderHome(request, message)
 
 def detail(request, ticker):
 
@@ -135,28 +149,31 @@ def detail(request, ticker):
     return render(request, 'stocks/detail.html', {'realData': realData, 'predictData': predictData, 'name': name, 'forms': forms, 'args': args})
 
 def predict(request, ticker):
+    form = PredictForm(request.POST)
 
-    if (request.method == "GET"): # catch if this is a GET request, just send the user to their corresponding detail page
-        return HttpResponseRedirect('/detail/' + ticker)
+    if form.is_valid():
+        daysOut = form.cleaned_data['predictUntil']
+    else:
+        return False
+    
+    # convert daysOut (a date string) to the number of days between now and then
+    daysOut = datetime.strptime(str(daysOut), "%Y-%m-%d").date() - datetime.now().date()
 
-    if (request.method == "POST"):
-        form = PredictForm(request.POST)
+    daysOut = daysOut.days # daysOut was previously some sort of duration object, this converts it to an int
 
-        if form.is_valid():
-            daysOut = form.cleaned_data['predictUntil']
-        else:
-            return False
-        
-        # convert daysOut (a date string) to the number of days between now and then
-        daysOut = datetime.strptime(str(daysOut), "%Y-%m-%d").date() - datetime.now().date()
-
-        daysOut = daysOut.days # daysOut was previously some sort of duration object, this converts it to an int
-
-        print(f"Starting prediction for {daysOut} days out for {ticker}")
-        
-        lstm.predict(ticker, daysOut)
+    # throw the predict_data function into a separate thread since it is slow
+    task = threading.Thread(target=predict_thread, args=(ticker, daysOut))
+    task.start()
 
     return HttpResponseRedirect('/detail/' + ticker)
+
+def predict_thread(ticker, daysOut):
+
+    print(f"Starting prediction for {daysOut} days out for {ticker}")
+        
+    lstm.predict(ticker, daysOut)
+
+    return True
 
 def deleteModel(request, ticker):
     # delete model file
