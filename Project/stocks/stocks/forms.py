@@ -25,3 +25,8 @@ class PredictForm(forms.Form):
     tomorrow = (datetime.now().date() + timedelta(days=1)).strftime("%Y-%m-%d")
 
     predictUntil = forms.DateField(label='Prediction End', widget=forms.DateInput(attrs={'type': 'date', 'min': '2016-01-01', 'value': tomorrow}))
+
+class PortfolioForm(forms.Form):
+    ticker = forms.CharField(label='Ticker', max_length=10)
+    quantity = forms.IntegerField(label='Quantity', min_value=1)
+    action = forms.ChoiceField(label='Buy/Sell', choices=[('buy', 'Buy'), ('sell', 'Sell')])

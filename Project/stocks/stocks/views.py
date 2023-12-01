@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 import time
 import threading
 
-from .forms import FilterForm, AddForm, PredictForm
+from .forms import FilterForm, AddForm, PredictForm, PortfolioForm
 
 
 def home(request):
@@ -123,9 +123,23 @@ def detail(request, ticker):
     return render(request, 'stocks/detail.html', {'data': data, 'name': name, 'form': form})
 
 def portfolio(request):
-    raw = Stock.objects.all()
+
+    portfolioForm = PortfolioForm()
+    form = {'portfolioForm': portfolioForm}
     
-    tickers = list(set([stock.ticker for stock in raw]))
+    session = alpaca.session()
+    positions = session.get_positions()
     
+    # Create list of tickers, market value, price and quantity from the positions dataframe
+    tickers = []
+    market_values = []
+    prices = []
+    quantities = []
+    for index, row in positions.iterrows():
+        tickers.append(row["symbol"])
+        market_values.append(row["market_value"])
+        prices.append(row["price"])
+        quantities.append(row["qty"])
+
     
-    return render(request, 'stocks/portfolio.html', {'tickers': tickers})
+    return render(request, 'stocks/portfolio.html', {'forms': form, 'tickers': tickers, 'market_values': market_values, 'prices': prices, 'quantities': quantities})
