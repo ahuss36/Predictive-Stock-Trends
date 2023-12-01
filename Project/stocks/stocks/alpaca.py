@@ -15,7 +15,7 @@ class session:
 
         self.ALPACA_API_KEY = kwargs.get("apiKey")
         self.ALPACA_SECRET_KEY = kwargs.get("secretKey")
-        self.ALPACA_BASE_URL = kwargs.get("baseURL")
+        self.BASE_URL = kwargs.get("baseURL")
 
         if (self.ALPACA_API_KEY == None):
             self.ALPACA_API_KEY = self.defaults.get("apiKey")
@@ -23,8 +23,8 @@ class session:
         if (self.ALPACA_SECRET_KEY == None):
             self.ALPACA_SECRET_KEY = self.defaults.get("secretKey")
 
-        if (self.ALPACA_BASE_URL == None):
-            self.ALPACA_BASE_URL = self.defaults.get("baseURL")
+        if (self.BASE_URL == None):
+            self.BASE_URL = self.defaults.get("baseURL")
 
         self.api = tradeapi.REST(self.ALPACA_API_KEY, self.ALPACA_SECRET_KEY, self.BASE_URL, api_version='v2')
     
@@ -54,7 +54,7 @@ class session:
     # get_history('AAPL', '1D', '2020-01-01', '2020-01-10'), end date is optional
     def get_history(self, symbol, timeframe, start, end = datetime.now().date() - timedelta(days = 1), filter = None):
 
-        data = self.api.get_bars(symbol, timeframe, start, end)
+        data = self.api.get_bars(symbol, timeframe, start, end, adjustment='split')
 
         df = pd.DataFrame()
 

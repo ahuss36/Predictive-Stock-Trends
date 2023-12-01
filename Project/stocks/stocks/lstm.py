@@ -66,9 +66,17 @@ def predict(ticker, daysOut=3):
         data.append(rawData[i]['close']) # convert to list of values
 
     scaler = MinMaxScaler(feature_range=(0,1))
-    data = scaler.fit_transform(data.values.reshape(-1, 1))
 
-    windows = lstm_functions.create_sequences(data, 60) # generate windows
+    # convert data to numpy array for scaling
+    data = np.array(data)
+    data = scaler.fit_transform(data.reshape(-1, 1))
+
+    print("Generating windows...")
+    
+    # convert data from a list of lists to a list of ints
+    data = [i[0] for i in data]
+
+    windows, targets = lstm_functions.create_sequences(data, 60) # generate windows
 
     print("Windows generated")
     last_sequence = windows[-1] # grab last window
@@ -92,10 +100,14 @@ def predict(ticker, daysOut=3):
     and at max we are looping 7 times, so it shouldn't be a big deal
     """
 
+    # convert future_predictions into a 2d numpy array
+    future_predictions = np.array(future_predictions)
+    future_predictions = future_predictions.reshape(-1, 1)
+
     future_predictions = scaler.inverse_transform(future_predictions)
 
     for i in range(daysOut): # saving the predictions to database
-        print(f"Saving day {i} of {daysOut}, value {future_predictions[i]}")
+        print(f"Saving day {i + 1} of {daysOut}, value {future_predictions[i]}")
         dbModel = models.Stock()
 
         dbModel.ticker = ticker

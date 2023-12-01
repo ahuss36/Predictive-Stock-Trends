@@ -4,10 +4,11 @@ from datetime import datetime, timedelta
 class FilterForm(forms.Form):
 
     today = datetime.now().date().strftime("%Y-%m-%d")
+    sevenDaysOut = ((datetime.now().date() + timedelta(days=1)) + timedelta(days=6)).strftime("%Y-%m-%d")
     yearAgo = (datetime.now().date() - timedelta(days=365)).strftime("%Y-%m-%d")
 
-    start = forms.DateField(label='Start Date', widget=forms.DateInput(attrs={'type': 'date', 'max': today, 'value': yearAgo}))
-    end = forms.DateField(label='End Date', widget=forms.DateInput(attrs={'type': 'date', 'max': today, 'value': today}))
+    start = forms.DateField(label='Start Date', widget=forms.DateInput(attrs={'type': 'date', 'max': sevenDaysOut, 'value': yearAgo}))
+    end = forms.DateField(label='End Date', widget=forms.DateInput(attrs={'type': 'date', 'max': sevenDaysOut, 'value': today}))
 
 class AddForm(forms.Form): # form to add ticker data
 
