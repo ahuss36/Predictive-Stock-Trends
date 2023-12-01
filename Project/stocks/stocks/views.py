@@ -17,6 +17,7 @@ def home(request):
 
     raw = Stock.objects.all()
     rawTickers = []
+    
 
     form = AddForm()
 
@@ -211,3 +212,11 @@ def deletePredictions(request, ticker):
         i.delete()
 
     return HttpResponseRedirect('/detail/' + ticker)
+    
+def portfolio(request):
+    raw = Stock.objects.all()
+    
+    
+    tickers = list(set([stock.ticker for stock in raw]))
+    
+    return render(request, 'stocks/portfolio.html', {'tickers': tickers})
