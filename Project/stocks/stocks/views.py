@@ -123,7 +123,7 @@ def detail(request, ticker):
     
     data = Stock.objects.filter(ticker=ticker, date__range=[startTime, endTime])
 
-    return render(request, 'stocks/detail.html', {'data': data, 'name': name, 'form': form})
+    return render(request, 'stocks/detail.html', {'data': data, 'name': name, 'forms': forms})
 
 def predict(request, ticker):
 
