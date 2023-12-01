@@ -14,6 +14,7 @@ def home(request):
 
     raw = Stock.objects.all()
     rawTickers = []
+    
 
     form = AddForm()
 
@@ -120,3 +121,11 @@ def detail(request, ticker):
     data = Stock.objects.filter(ticker=ticker, date__range=[startTime, endTime])
 
     return render(request, 'stocks/detail.html', {'data': data, 'name': name, 'form': form})
+
+def portfolio(request):
+    raw = Stock.objects.all()
+    
+    tickers = list(set([stock.ticker for stock in raw]))
+    
+    
+    return render(request, 'stocks/portfolio.html', {'tickers': tickers})

@@ -30,8 +30,9 @@
             text-align: var(--justify-normal);
         }
     </style>
-
+    
     <link rel="stylesheet" href="https://unpkg.com/mvp.css"> 
+    
     <head>
         <meta charset="utf-8">
         <title>Stock Prediction</title>
@@ -47,6 +48,10 @@
                     {{ form.as_p }}
                     <input type="submit" value="Submit">
                 </form>
+
+                <div class="portfolioButton">
+                    <input type="button" value = "Portfolio" onclick="window.location.href='/portfolio'">
+                </div>
 
             </div>
 

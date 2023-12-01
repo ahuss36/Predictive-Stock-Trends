@@ -26,4 +26,5 @@ urlpatterns = [
     path('add', views.add),
     path('detail/<str:ticker>', views.detail),
     path('detail/<str:ticker>/', views.detail),
+    path('portfolio', views.portfolio)
 ]
