@@ -27,10 +27,7 @@
         .chartContainer {
             padding: 20px;
         }
-        .filterSettings {
-            padding: 20px;
-        }
-        .predictionActions {
+        div {
             padding: 20px;
         }
         .backButton {
@@ -60,11 +57,19 @@
                     ctx.canvas.height = height * 0.5
 
                     var dates = []
-                    var prices = []
 
-                    {% for stock in data %}
+                    var realPrices = []
+                    var predictPrices = []
+
+                    {% for stock in realData %}
                         dates.push("{{stock.date}}")
-                        prices.push("{{stock.close}}")
+                        realPrices.push("{{stock.close}}")
+                        predictPrices.push(null)
+                    {% endfor %}
+
+                    {% for stock in predictData %}
+                        dates.push("{{stock.date}}")
+                        predictPrices.push("{{stock.close}}")
                     {% endfor %}
 
                     let chart = new Chart(ctx, {
@@ -73,16 +78,26 @@
                         labels: dates,
                         datasets: [
                             {
-                            label: "Prices for {{name}}",
-                            backgroundColor: "#79AEC8",
-                            borderColor: "#417690",
-                            data: prices
+                                label: "Prices for {{name}}",
+                                backgroundColor: "#79AEC8",
+                                borderColor: "#417690",
+                                data: realPrices
+                            },
+                            {% if args.hasPredictions == True %} // parser likes to get pissed here, but this is valid syntax. just cursed.
+                            {
+                                label: "Predicted prices for {{name}}",
+                                backgroundColor: "#F2BAC9",
+                                borderColor: "#D46A8D",
+                                data: predictPrices
                             }
+                            {% endif %}
                         ]
                     },
                     options: {
-                        responsive: false,
+                        responsive: true,
                         pointRadius: 0,
+                        // put the second dataset on the right side of the chart
+                        
                     }
                     });
                 </script>
@@ -103,13 +118,37 @@
         </div>
 
         <div class="row2">
+
             <div class="predictionActions">
                 <h1>Predictions Menu</h1>
-                <form method="POST" action="/detail/{{name}}/">
+                <form method="POST" action="/predict/{{name}}/">
                     {% csrf_token %}
                     {{forms.predictForm.as_p}}
                     <input type="submit" value="Predict">
+                </form>
             </div>
+
+            {% if args.hasPredictions == True %}
+            <div class="deletePredictions">
+                <h1>Delete Predictions</h1>
+                <form method="POST" action="/deletePredictions/{{name}}/">
+                    {% csrf_token %}
+                    {{forms.deleteForm.as_p}}
+                    <input type="submit" value="Delete">
+                </form>
+            </div>
+            {% endif %}
+
+            {% if args.modelExists == True %}
+            <div class="deleteModel">
+                <h1>Delete Model</h1>
+                <form method="POST" action="/deleteModel/{{name}}/">
+                    {% csrf_token %}
+                    {{forms.deleteForm.as_p}}
+                    <input type="submit" value="Delete">
+                </form>
+            </div>
+            {% endif %}
         </div>
 
     </body>

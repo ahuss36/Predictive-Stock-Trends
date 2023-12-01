@@ -5,27 +5,11 @@ import pandas as pd
 
 class session:
 
-    defaults = {
-        "apiKey": "PKNA5BRTUQNYGT6HKOKU", # These have zero damage potential, so I am not worried about them being public
-        "secretKey": "UW2YAU3T6J0meNvwiNQbcqxwtYWu5anHxoe0AVgu",
-        "baseURL": "https://paper-api.alpaca.markets"
-    }
+    ALPACA_API_KEY = "PKNA5BRTUQNYGT6HKOKU" # These have zero damage potential, so I am not worried about them being public
+    ALPACA_SECRET_KEY = "UW2YAU3T6J0meNvwiNQbcqxwtYWu5anHxoe0AVgu"
+    BASE_URL = "https://paper-api.alpaca.markets"
 
-    def __init__(self, *args, **kwargs):
-
-        self.ALPACA_API_KEY = kwargs.get("apiKey")
-        self.ALPACA_SECRET_KEY = kwargs.get("secretKey")
-        self.BASE_URL = kwargs.get("baseURL")
-
-        if (self.ALPACA_API_KEY == None):
-            self.ALPACA_API_KEY = self.defaults.get("apiKey")
-
-        if (self.ALPACA_SECRET_KEY == None):
-            self.ALPACA_SECRET_KEY = self.defaults.get("secretKey")
-
-        if (self.BASE_URL == None):
-            self.BASE_URL = self.defaults.get("baseURL")
-
+    def __init__(self):
         self.api = tradeapi.REST(self.ALPACA_API_KEY, self.ALPACA_SECRET_KEY, self.BASE_URL, api_version='v2')
     
     def get_account(self):
@@ -54,7 +38,7 @@ class session:
     # get_history('AAPL', '1D', '2020-01-01', '2020-01-10'), end date is optional
     def get_history(self, symbol, timeframe, start, end = datetime.now().date() - timedelta(days = 1), filter = None):
 
-        data = self.api.get_bars(symbol, timeframe, start, end, adjustment='split')
+        data = self.api.get_bars(symbol, timeframe, start, end)
 
         df = pd.DataFrame()
 
