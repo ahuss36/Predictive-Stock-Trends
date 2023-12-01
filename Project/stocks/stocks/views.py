@@ -214,9 +214,23 @@ def deletePredictions(request, ticker):
     return HttpResponseRedirect('/detail/' + ticker)
     
 def portfolio(request):
-    raw = Stock.objects.all()
+
+    portfolioForm = PortfolioForm()
+    form = {'portfolioForm': portfolioForm}
     
+    session = alpaca.session()
+    positions = session.get_positions()
     
-    tickers = list(set([stock.ticker for stock in raw]))
+    # Create list of tickers, market value, price and quantity from the positions dataframe
+    tickers = []
+    market_values = []
+    prices = []
+    quantities = []
+    for index, row in positions.iterrows():
+        tickers.append(row["symbol"])
+        market_values.append(row["market_value"])
+        prices.append(row["price"])
+        quantities.append(row["qty"])
+
     
-    return render(request, 'stocks/portfolio.html', {'tickers': tickers})
+    return render(request, 'stocks/portfolio.html', {'forms': form, 'tickers': tickers, 'market_values': market_values, 'prices': prices, 'quantities': quantities})
