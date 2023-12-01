@@ -33,6 +33,9 @@
         .predictionActions {
             padding: 20px;
         }
+        .deleteModel {
+            padding: 20px;
+        }
         .backButton {
             padding: 20px;
         }
@@ -81,7 +84,7 @@
                         ]
                     },
                     options: {
-                        responsive: false,
+                        responsive: true,
                         pointRadius: 0,
                     }
                     });
@@ -103,13 +106,26 @@
         </div>
 
         <div class="row2">
+
             <div class="predictionActions">
                 <h1>Predictions Menu</h1>
                 <form method="POST" action="/predict/{{name}}/">
                     {% csrf_token %}
                     {{forms.predictForm.as_p}}
                     <input type="submit" value="Predict">
+                </form>
             </div>
+
+            {% if modelExists == True %}
+            <div class="deleteModel">
+                <h1>Delete Model</h1>
+                <form method="POST" action="/deleteModel/{{name}}/">
+                    {% csrf_token %}
+                    {{forms.deleteForm.as_p}}
+                    <input type="submit" value="Delete">
+                </form>
+            </div>
+            {% endif %}
         </div>
 
     </body>

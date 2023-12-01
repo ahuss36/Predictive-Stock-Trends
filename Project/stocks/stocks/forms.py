@@ -1,5 +1,6 @@
 from django import forms
 from datetime import datetime, timedelta
+import os
 
 class FilterForm(forms.Form):
 
@@ -27,3 +28,7 @@ class PredictForm(forms.Form): # form to request stock predictions
     sevenDaysOut = ((datetime.now().date() + timedelta(days=1)) + timedelta(days=6)).strftime("%Y-%m-%d")
 
     predictUntil = forms.DateField(label='Prediction End', widget=forms.DateInput(attrs={'type': 'date', 'min': tomorrow, 'max': sevenDaysOut, 'value': tomorrow}))
+
+class DeleteModelForm(forms.Form): # form to delete a model
+    # confirm checkbox
+    confirm = forms.BooleanField(label='Confirm', required=True)

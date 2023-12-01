@@ -6,8 +6,9 @@ import pandas
 from datetime import datetime, timedelta
 import time
 import threading
+import os
 
-from .forms import FilterForm, AddForm, PredictForm
+from .forms import *
 
 from . import lstm
 
@@ -107,14 +108,18 @@ def detail(request, ticker):
 
     filterForm = FilterForm()
     predictForm = PredictForm()
+    deleteForm = DeleteModelForm()
 
     forms = {
         'filterForm': filterForm,
-        'predictForm': predictForm
+        'predictForm': predictForm,
+        'deleteForm': deleteForm
     }
 
+    modelExists = os.path.isfile(f"stocks/models/{ticker}.keras")
+
     if (timespan == None):
-        return render(request, 'stocks/detail.html', {'data': data, 'name': name, 'forms': forms})
+        return render(request, 'stocks/detail.html', {'data': data, 'name': name, 'forms': forms, 'modelExists': modelExists})
     
     # if we get to here, timespan is defined. It is [unixtime_start]-[unixtime_end] to allow it to be fed via a URL
 
@@ -148,3 +153,24 @@ def predict(request, ticker):
         lstm.predict(ticker, daysOut)
 
     return HttpResponseRedirect('/detail/' + ticker)
+
+def delete(request, ticker):
+    # delete model file
+
+    print(f"Deleting model for {ticker}")
+
+    if (request.method == "GET"): # catch if this is a GET request, just send the user to their corresponding detail page
+        return HttpResponseRedirect('/detail/' + ticker)
+    
+    if (request.method == "POST"):
+        form = DeleteModelForm(request.POST)
+
+        if form.is_valid():
+            confirm = form.cleaned_data['confirm']
+        else:
+            return False
+        
+        if (confirm):
+            os.remove(f"stocks/models/{ticker}.keras")
+            print(f"Model for {ticker} deleted")
+            return HttpResponseRedirect('/detail/' + ticker)
