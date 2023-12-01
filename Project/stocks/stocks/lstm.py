@@ -4,15 +4,19 @@ from pandas import DataFrame as df
 import keras
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
+import os
 
 from . import models
 from . import alpaca
 from . import lstm_functions
 
+def getModelFilename(ticker):
+    return f"stocks\\models\\{ticker.lower()}.keras" 
+
 def loadModel(ticker): # Load a given ticker's LSTM model, or train a new one if it doesn't exist
     try:
         # load model from file
-        filename = ticker.lower() + '.keras' # files should be saved as .keras
+        filename = "\models\\" + getModelFilename(ticker)
         model = keras.models.load_model(filename)
         print("Found existing model, loading...")
     except (FileNotFoundError, OSError): # if the file does not exist, train a new model
@@ -32,13 +36,14 @@ def loadModel(ticker): # Load a given ticker's LSTM model, or train a new one if
     
     return model
 
-def saveModel(model, ticker):
+def saveModel(model, ticker): 
     try:
         # save model to file
-        filename = ticker.lower() + '.keras' # files should be saved as .keras
+        filename = getModelFilename(ticker)
         model.save(filename)
         return model
-    except:
+    except OSError as e:
+        print(e)
         return False
 
 def predict(ticker, daysOut=3):
