@@ -32,3 +32,7 @@ class PredictForm(forms.Form): # form to request stock predictions
 class DeleteModelForm(forms.Form): # form to delete a model
     # confirm checkbox
     confirm = forms.BooleanField(label='Confirm', required=True)
+
+class DeletePredictionsForm(forms.Form): # form to delete predictions
+    # confirm checkbox
+    confirm = forms.BooleanField(label='Confirm', required=True)

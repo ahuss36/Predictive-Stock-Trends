@@ -26,5 +26,6 @@ urlpatterns = [
     path('add', views.add), # for add/remove requests, not actual webpage
     path('detail/<str:ticker>/', views.detail), 
     path('predict/<str:ticker>/', views.predict), # for prediction requests, not actual webpage
-    path('deleteModel/<str:ticker>/', views.delete), # for delete requests, not actual webpage
+    path('deleteModel/<str:ticker>/', views.deleteModel), # for delete requests, not actual webpage
+    path('deletePredictions/<str:ticker>/', views.deletePredictions), # for delete requests, not actual webpage
 ]

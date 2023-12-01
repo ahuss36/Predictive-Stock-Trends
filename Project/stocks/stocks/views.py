@@ -103,8 +103,9 @@ def detail(request, ticker):
             except OverflowError:
                 timespan = "0-" + str(int(time.mktime(end.timetuple())))
 
-    data = Stock.objects.filter(ticker=ticker)
-    name = data[0].ticker
+    realData = Stock.objects.filter(ticker=ticker, prediction=False)
+    predictData = Stock.objects.filter(ticker=ticker, prediction=True)
+    name = realData[0].ticker
 
     filterForm = FilterForm()
     predictForm = PredictForm()
@@ -116,19 +117,22 @@ def detail(request, ticker):
         'deleteForm': deleteForm
     }
 
-    modelExists = os.path.isfile(f"stocks/models/{ticker}.keras")
+    args = {
+        'modelExists': os.path.isfile(f"stocks/models/{ticker}.keras"),
+        'hasPredictions': Stock.objects.filter(ticker=ticker, prediction=True).count() > 0,
+    }
 
-    if (timespan == None):
-        return render(request, 'stocks/detail.html', {'data': data, 'name': name, 'forms': forms, 'modelExists': modelExists})
-    
-    # if we get to here, timespan is defined. It is [unixtime_start]-[unixtime_end] to allow it to be fed via a URL
+    if (timespan != None):
+        startTime = datetime.fromtimestamp(int(timespan.split("-")[0]))
+        endTime = datetime.fromtimestamp(int(timespan.split("-")[1]))
 
-    startTime = datetime.fromtimestamp(int(timespan.split("-")[0]))
-    endTime = datetime.fromtimestamp(int(timespan.split("-")[1]))
-    
-    data = Stock.objects.filter(ticker=ticker, date__range=[startTime, endTime])
+        realData = Stock.objects.filter(ticker=ticker, prediction=False, date__range=[startTime, endTime])
+        predictData = Stock.objects.filter(ticker=ticker, prediction=True, date__range=[startTime, endTime])
+    else:
+        realData = Stock.objects.filter(ticker=ticker, prediction=False)
+        predictData = Stock.objects.filter(ticker=ticker, prediction=True)
 
-    return render(request, 'stocks/detail.html', {'data': data, 'name': name, 'forms': forms})
+    return render(request, 'stocks/detail.html', {'realData': realData, 'predictData': predictData, 'name': name, 'forms': forms, 'args': args})
 
 def predict(request, ticker):
 
@@ -154,7 +158,7 @@ def predict(request, ticker):
 
     return HttpResponseRedirect('/detail/' + ticker)
 
-def delete(request, ticker):
+def deleteModel(request, ticker):
     # delete model file
 
     print(f"Deleting model for {ticker}")
@@ -174,3 +178,14 @@ def delete(request, ticker):
             os.remove(f"stocks/models/{ticker}.keras")
             print(f"Model for {ticker} deleted")
             return HttpResponseRedirect('/detail/' + ticker)
+        
+def deletePredictions(request, ticker):
+    
+    # delete predictions from database
+
+    predictions = Stock.objects.filter(ticker=ticker, prediction=True)
+
+    for i in predictions:
+        i.delete()
+
+    return HttpResponseRedirect('/detail/' + ticker)
