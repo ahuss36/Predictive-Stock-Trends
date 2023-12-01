@@ -16,7 +16,7 @@ def getModelFilename(ticker):
 def loadModel(ticker): # Load a given ticker's LSTM model, or train a new one if it doesn't exist
     try:
         # load model from file
-        filename = "\models\\" + getModelFilename(ticker)
+        filename = getModelFilename(ticker)
         model = keras.models.load_model(filename)
         print("Found existing model, loading...")
     except (FileNotFoundError, OSError): # if the file does not exist, train a new model

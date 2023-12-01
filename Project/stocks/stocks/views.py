@@ -100,6 +100,22 @@ def add(request): # this also serves as the remove function, I am just bad at na
 
     return renderHome(request, message)
 
+def getPriceData(ticker, timespan = None):
+    realData = Stock.objects.filter(ticker=ticker, prediction=False)
+    predictData = Stock.objects.filter(ticker=ticker, prediction=True)
+
+    if (timespan != None):
+        startTime = datetime.fromtimestamp(int(timespan.split("-")[0]))
+        endTime = datetime.fromtimestamp(int(timespan.split("-")[1]))
+
+        realData = Stock.objects.filter(ticker=ticker, prediction=False, date__range=[startTime, endTime])
+        predictData = Stock.objects.filter(ticker=ticker, prediction=True, date__range=[startTime, endTime])
+    else:
+        realData = Stock.objects.filter(ticker=ticker, prediction=False)
+        predictData = Stock.objects.filter(ticker=ticker, prediction=True)
+
+    return realData, predictData
+
 def detail(request, ticker):
 
     timespan = None
@@ -115,10 +131,9 @@ def detail(request, ticker):
                 # timespan is a string that looks like this: [unixtime_start]-[unixtime_end]
                 timespan = str(int(time.mktime(start.timetuple()))) + "-" + str(int(time.mktime(end.timetuple())))
             except OverflowError:
-                timespan = "0-" + str(int(time.mktime(end.timetuple())))
+                timespan = "0-" + str(int(time.mktime(end.timetuple())))    
 
-    realData = Stock.objects.filter(ticker=ticker, prediction=False)
-    predictData = Stock.objects.filter(ticker=ticker, prediction=True)
+    realData, predictData = getPriceData(ticker, timespan)
     name = realData[0].ticker
 
     filterForm = FilterForm()
@@ -135,16 +150,6 @@ def detail(request, ticker):
         'modelExists': os.path.isfile(f"stocks/models/{ticker}.keras"),
         'hasPredictions': Stock.objects.filter(ticker=ticker, prediction=True).count() > 0,
     }
-
-    if (timespan != None):
-        startTime = datetime.fromtimestamp(int(timespan.split("-")[0]))
-        endTime = datetime.fromtimestamp(int(timespan.split("-")[1]))
-
-        realData = Stock.objects.filter(ticker=ticker, prediction=False, date__range=[startTime, endTime])
-        predictData = Stock.objects.filter(ticker=ticker, prediction=True, date__range=[startTime, endTime])
-    else:
-        realData = Stock.objects.filter(ticker=ticker, prediction=False)
-        predictData = Stock.objects.filter(ticker=ticker, prediction=True)
 
     return render(request, 'stocks/detail.html', {'realData': realData, 'predictData': predictData, 'name': name, 'forms': forms, 'args': args})
 
@@ -165,7 +170,7 @@ def predict(request, ticker):
     task = threading.Thread(target=predict_thread, args=(ticker, daysOut))
     task.start()
 
-    return HttpResponseRedirect('/detail/' + ticker)
+    return detail(request, ticker)
 
 def predict_thread(ticker, daysOut):
 
