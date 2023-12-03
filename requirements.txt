@@ -1,4 +1,8 @@
+wheel
+PyYAML==6.0.1
 alpaca-trade-api
 pandas
 django
+tensorflow
+scikit-learn
 keras
