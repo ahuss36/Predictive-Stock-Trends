@@ -12,7 +12,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            {% comment %} padding: 20px; {% endcomment %}
+            /* padding: 20px; */
         }
         .stockList {
             display: flex;
@@ -29,9 +29,13 @@
             padding: 1.5rem;
             text-align: var(--justify-normal);
         }
+        .portfolioButton {
+            padding: 2rem;
+        }
     </style>
-
+    
     <link rel="stylesheet" href="https://unpkg.com/mvp.css"> 
+    
     <head>
         <meta charset="utf-8">
         <title>Stock Prediction</title>
@@ -53,6 +57,10 @@
                     <p>{{ message }}</p>
 
                 {% endif %}
+
+                <div class="portfolioButton">
+                    <input type="button" value = "Portfolio" onclick="window.location.href='/portfolio'">
+                </div>
 
             </div>
 
