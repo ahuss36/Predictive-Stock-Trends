@@ -129,17 +129,21 @@ def portfolio(request):
     
     session = alpaca.session()
     positions = session.get_positions()
-    
     # Create list of tickers, market value, price and quantity from the positions dataframe
     tickers = []
+    rawTickers = []
+    raw = Stock.objects.all()
+    for i in raw:
+        rawTickers.append(i.ticker)
+    tickers = set(rawTickers)
+
     market_values = []
     prices = []
     quantities = []
     for index, row in positions.iterrows():
-        tickers.append(row["symbol"])
+        # tickers.append(row["symbol"])
         market_values.append(row["market_value"])
         prices.append(row["price"])
         quantities.append(row["qty"])
-
     
     return render(request, 'stocks/portfolio.html', {'forms': form, 'tickers': tickers, 'market_values': market_values, 'prices': prices, 'quantities': quantities})
