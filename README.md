@@ -10,7 +10,6 @@ Predictive Stock Trends is a machine learning project that applies **Long Short-
 - **Visualization**: Matplotlib plots comparing predicted vs. actual stock prices.  
 - **Future Forecasting**: Ability to generate projections for upcoming trading days.  
 - **Integration-Ready**: Includes an Alpaca Markets API wrapper for live data retrieval and simulated trading.  
-- **Team Collaboration**: Developed by a multifaceted group with full-stack design, front-end, and back-end integration.
 
 - ##  Tech Stack 
 - **Languages**: Python (NumPy, pandas, matplotlib, scikit-learn)  
